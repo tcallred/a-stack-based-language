@@ -1,21 +1,23 @@
-use std::io::{stdin, stdout, Write};
 use colored::*;
+use std::io::{stdin, stdout, Write};
 
 type Value = f64;
 
-enum Parsed<'a>{
+enum Parsed<'a> {
     Val(Value),
-    Word(&'a str)
+    Word(&'a str),
 }
 
 #[derive(Debug)]
 struct Stack {
-    rep: Vec<Value>
+    rep: Vec<Value>,
 }
 
 impl Stack {
     fn new() -> Self {
-        Stack { rep: Vec::with_capacity(10) }
+        Stack {
+            rep: Vec::with_capacity(10),
+        }
     }
     fn push(mut self, val: Value) -> Self {
         self.rep.push(val);
@@ -39,9 +41,8 @@ impl Stack {
 
         match parsed {
             Val(val) => self.push(val),
-            Word(w) => self.execute_word(w)
+            Word(w) => self.execute_word(w),
         }
-        
     }
     fn execute_word(self, word: &str) -> Self {
         match word {
@@ -50,7 +51,7 @@ impl Stack {
                     eprintln!("{}", format!("`{}` requires two arguments.", word).red());
                     return self;
                 }
-                let (v1, stack1) = self.pop(); 
+                let (v1, stack1) = self.pop();
                 let (v2, stack2) = stack1.pop();
                 stack2.push(v1.unwrap() + v2.unwrap())
             }
@@ -60,7 +61,6 @@ impl Stack {
             }
         }
     }
-
 }
 
 fn execute_ln(ln: &str) -> Value {
@@ -70,7 +70,7 @@ fn execute_ln(ln: &str) -> Value {
     let new_stack = words.fold(stack, |s, w| s.execute(w));
 
     println!("{:?}", new_stack);
-    
+
     new_stack.peek(0).unwrap().clone()
 }
 
