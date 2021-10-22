@@ -2,10 +2,28 @@ use colored::*;
 use std::io::{stdin, stdout, Write};
 
 type Value = f64;
+// type MonadicFn = fn(Value) -> Value;
+type DyadicFn = fn(Value, Value) -> Value;
 
 enum Expr<'a> {
     Val(Value),
     Word(&'a str),
+}
+
+fn add(v1: Value, v2: Value) -> Value {
+    v1 + v2
+}
+
+fn subtract(v1: Value, v2: Value) -> Value {
+    v2 - v1
+}
+
+fn multiply(v1: Value, v2: Value) -> Value {
+    v1 * v2
+}
+
+fn divide(v1: Value, v2: Value) -> Value {
+    v2 / v1
 }
 
 #[derive(Debug)]
@@ -24,7 +42,7 @@ impl Stack {
         self
     }
     fn peek(&self, n: usize) -> Option<&Value> {
-        self.rep.get(self.rep.len() - 1 - n)
+        self.rep.iter().rev().nth(n)
     }
     fn pop(mut self) -> (Option<Value>, Self) {
         let val = self.rep.pop();
@@ -41,20 +59,36 @@ impl Stack {
     }
     fn execute_word(self, word: &str) -> Self {
         match word {
-            "+" => {
-                if self.rep.len() < 2 {
-                    eprintln!("{}", format!("`{}` requires two arguments.", word).red());
-                    return self;
-                }
-                let (v1, stack1) = self.pop();
-                let (v2, stack2) = stack1.pop();
-                stack2.push(v1.unwrap() + v2.unwrap())
-            }
+            "+" => self.execute_dyadic(word, add),
+            "-" => self.execute_dyadic(word, subtract),
+            "*" => self.execute_dyadic(word, multiply),
+            "/" => self.execute_dyadic(word, divide),
             _ => {
                 eprintln!("{}", format!("Unrecognized word `{}`", word).red());
                 self
             }
         }
+    }
+    // fn execute_monadic(self, word: &str, f: MonadicFn) -> Self {
+    //     if self.rep.len() < 1 {
+    //         eprintln!("{}", format!("`{}` requires one argument.", word).red());
+    //         eprintln!("{}", format!("The stack: {:?}", self.rep).red());
+
+    //         return self;
+    //     }
+    //     let (v1, stack1) = self.pop();
+    //     stack1.push(f(v1.unwrap()))
+    // }
+    fn execute_dyadic(self, word: &str, f: DyadicFn) -> Self {
+        if self.rep.len() < 2 {
+            eprintln!("{}", format!("`{}` requires two arguments.", word).red());
+            eprintln!("{}", format!("The stack: {:?}", self.rep).red());
+
+            return self;
+        }
+        let (v1, stack1) = self.pop();
+        let (v2, stack2) = stack1.pop();
+        stack2.push(f(v1.unwrap(), v2.unwrap()))
     }
 }
 
@@ -66,16 +100,21 @@ fn parse(token: &str) -> Expr {
     }
 }
 
-fn execute_ln(ln: &str) -> Value {
+fn execute_ln(ln: &str) {
     let stack = Stack::new();
     let tokens = ln.split(' ');
     let exprs = tokens.map(parse);
 
     let new_stack = exprs.fold(stack, |s, e| s.execute(e));
 
-    println!("{:?}", new_stack);
+    // println!("{:?}", new_stack);
 
-    new_stack.peek(0).unwrap().clone()
+    // new_stack.peek(0).unwrap_or(&0.0).clone()
+    let mut i = 0;
+    while let Some(val) = new_stack.peek(i) {
+        println!("{}", format!("{}", val).purple());
+        i += 1;
+    }
 }
 
 fn run_prompt() {
@@ -91,8 +130,7 @@ fn run_prompt() {
         if trimmed_line.len() == 0 {
             break;
         } else {
-            let res = execute_ln(trimmed_line);
-            println!("{}", res);
+            execute_ln(trimmed_line);
         }
 
         line.clear();
@@ -102,6 +140,5 @@ fn run_prompt() {
 fn main() {
     println!("{}\n", "A stack based programming language. Enjoy!".blue());
     run_prompt();
-    println!();
     println!("{}", "Goodbye.".blue());
 }
