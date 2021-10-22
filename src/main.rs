@@ -3,7 +3,7 @@ use std::io::{stdin, stdout, Write};
 
 type Value = f64;
 
-enum Token<'a> {
+enum Expr<'a> {
     Val(Value),
     Word(&'a str),
 }
@@ -31,10 +31,10 @@ impl Stack {
 
         (val, self)
     }
-    fn execute(self, token: Token) -> Self {
-        use Token::*;
+    fn execute(self, expr: Expr) -> Self {
+        use Expr::*;
 
-        match token {
+        match expr {
             Val(val) => self.push(val),
             Word(w) => self.execute_word(w),
         }
@@ -58,20 +58,20 @@ impl Stack {
     }
 }
 
-fn parse(lexeme: &str) -> Token {
-    use Token::*;
-    match lexeme.parse::<Value>() {
+fn parse(token: &str) -> Expr {
+    use Expr::*;
+    match token.parse::<Value>() {
         Ok(val) => Val(val),
-        Err(_) => Word(lexeme),
+        Err(_) => Word(token),
     }
 }
 
 fn execute_ln(ln: &str) -> Value {
     let stack = Stack::new();
-    let lexemes = ln.split(' ');
-    let tokens = lexemes.map(parse);
+    let tokens = ln.split(' ');
+    let exprs = tokens.map(parse);
 
-    let new_stack = tokens.fold(stack, |s, t| s.execute(t));
+    let new_stack = exprs.fold(stack, |s, e| s.execute(e));
 
     println!("{:?}", new_stack);
 
