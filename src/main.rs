@@ -127,15 +127,13 @@ fn parse(token: &str) -> Expr {
 
 fn execute_ln(ln: &str) {
     let stack = Stack::new();
-    let tokens = ln.split(' ');
+    let tokens = ln.split_whitespace();
     let exprs = tokens.map(parse);
 
     let new_stack = exprs.fold(stack, |s, e| s.execute(e));
 
-    let mut i = 0;
-    while let Some(val) = new_stack.peek(i) {
+    for val in new_stack.rep.iter().rev() {
         println!("{}", format!("{}", val).purple());
-        i += 1;
     }
 }
 
