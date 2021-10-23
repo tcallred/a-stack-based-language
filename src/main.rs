@@ -63,6 +63,9 @@ impl Stack {
             "-" => self.execute_dyadic(word, subtract),
             "*" => self.execute_dyadic(word, multiply),
             "/" => self.execute_dyadic(word, divide),
+            "right" => self.right(),
+            "left" => self.left(),
+            "commute" => self.commute(),
             _ => {
                 eprintln!("{}", format!("Unrecognized word `{}`", word).red());
                 self
@@ -90,6 +93,28 @@ impl Stack {
         let (v2, stack2) = stack1.pop();
         stack2.push(f(v1.unwrap(), v2.unwrap()))
     }
+    fn commute(self) -> Self {
+        if self.rep.len() < 2 {
+            return self;
+        }
+        let (v1, stack1) = self.pop();
+        let (v2, stack2) = stack1.pop();
+        stack2.push(v1.unwrap()).push(v2.unwrap())
+    }
+    fn right(self) -> Self {
+        if self.rep.len() < 1 {
+            return self;
+        }
+        let val = self.peek(0).unwrap().clone();
+        self.push(val)
+    }
+    fn left(self) -> Self {
+        if self.rep.len() < 2 {
+            return self;
+        }
+        let val = self.peek(1).unwrap().clone();
+        self.push(val)
+    }
 }
 
 fn parse(token: &str) -> Expr {
@@ -107,9 +132,6 @@ fn execute_ln(ln: &str) {
 
     let new_stack = exprs.fold(stack, |s, e| s.execute(e));
 
-    // println!("{:?}", new_stack);
-
-    // new_stack.peek(0).unwrap_or(&0.0).clone()
     let mut i = 0;
     while let Some(val) = new_stack.peek(i) {
         println!("{}", format!("{}", val).purple());
