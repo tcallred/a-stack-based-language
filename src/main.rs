@@ -1,7 +1,7 @@
 use colored::*;
-use std::io::{stdin, stdout, Write};
-use ndarray::Array2;
 use ndarray::arr2;
+use ndarray::Array2;
+use std::io::{stdin, stdout, Write};
 
 type Number = i64;
 type Value = Array2<Number>;
