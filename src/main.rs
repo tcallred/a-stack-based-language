@@ -1,6 +1,5 @@
 use colored::*;
 use ndarray::arr2;
-use ndarray::concatenate;
 use ndarray::Array2;
 use std::io::{stdin, stdout, Write};
 
@@ -159,7 +158,7 @@ fn execute_ln(ln: &str) {
     let new_stack = exprs.fold(stack, |s, e| s.execute(e));
 
     for val in new_stack.rep.iter().rev() {
-        println!("{}", format!("{:?}", val).purple());
+        println!("{}", format!("{}", val).purple());
     }
 }
 
