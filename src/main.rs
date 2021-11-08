@@ -1,12 +1,15 @@
 use colored::*;
 use std::io::{stdin, stdout, Write};
+use ndarray::Array2;
+use ndarray::arr2;
 
-type Value = f64;
+type Number = i64;
+type Value = Array2<Number>;
 // type MonadicFn = fn(Value) -> Value;
 type DyadicFn = fn(Value, Value) -> Value;
 
 enum Expr<'a> {
-    Val(Value),
+    Num(Number),
     Word(&'a str),
 }
 
@@ -53,7 +56,7 @@ impl Stack {
         use Expr::*;
 
         match expr {
-            Val(val) => self.push(val),
+            Num(val) => self.push(arr2(&[[val]])),
             Word(w) => self.execute_word(w),
         }
     }
@@ -119,8 +122,8 @@ impl Stack {
 
 fn parse(token: &str) -> Expr {
     use Expr::*;
-    match token.parse::<Value>() {
-        Ok(val) => Val(val),
+    match token.parse::<Number>() {
+        Ok(val) => Num(val),
         Err(_) => Word(token),
     }
 }
@@ -133,7 +136,7 @@ fn execute_ln(ln: &str) {
     let new_stack = exprs.fold(stack, |s, e| s.execute(e));
 
     for val in new_stack.rep.iter().rev() {
-        println!("{}", format!("{}", val).purple());
+        println!("{}", format!("{:?}", val).purple());
     }
 }
 
