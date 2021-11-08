@@ -1,18 +1,21 @@
 use colored::*;
 use ndarray::arr2;
+use ndarray::concatenate;
 use ndarray::Array2;
 use std::io::{stdin, stdout, Write};
 
-type Number = i64;
+type Number = f64;
 type Value = Array2<Number>;
 // type MonadicFn = fn(Value) -> Value;
 type DyadicFn = fn(Value, Value) -> Value;
+type StackFn = fn(Vec<Value>) -> Value;
 
 enum Expr<'a> {
     Num(Number),
     Word(&'a str),
 }
 
+// Dyadic Fns -------------------------
 fn add(v1: Value, v2: Value) -> Value {
     v1 + v2
 }
@@ -27,6 +30,15 @@ fn multiply(v1: Value, v2: Value) -> Value {
 
 fn divide(v1: Value, v2: Value) -> Value {
     v2 / v1
+}
+
+// All Stack Fns -------------------------
+fn concat_array(values: Vec<Value>) -> Value {
+    let mut new_arr = ndarray::Array2::<Number>::zeros((1, values.len()));
+    for (i, v) in values.iter().enumerate() {
+        new_arr[[0, i]] = v[[0, 0]];
+    }
+    return new_arr;
 }
 
 #[derive(Debug)]
@@ -69,6 +81,7 @@ impl Stack {
             "right" => self.right(),
             "left" => self.left(),
             "commute" => self.commute(),
+            "|" => self.execute_all(concat_array),
             _ => {
                 eprintln!("{}", format!("Unrecognized word `{}`", word).red());
                 self
@@ -95,6 +108,16 @@ impl Stack {
         let (v1, stack1) = self.pop();
         let (v2, stack2) = stack1.pop();
         stack2.push(f(v1.unwrap(), v2.unwrap()))
+    }
+    fn execute_all(self, f: StackFn) -> Self {
+        let mut stack = self;
+        let mut vals = vec![];
+        while stack.rep.len() > 0 && stack.peek(0).unwrap().len() == 1 {
+            let (v, new_stack) = stack.pop();
+            vals.push(v.unwrap());
+            stack = new_stack;
+        }
+        stack.push(f(vals.into_iter().rev().collect()))
     }
     fn commute(self) -> Self {
         if self.rep.len() < 2 {
