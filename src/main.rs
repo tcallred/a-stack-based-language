@@ -37,7 +37,7 @@ fn product(v: Value) -> Value {
 }
 
 fn iota(v: Value) -> Value {
-    let n = v[[0,0]] as usize;
+    let n = v[[0, 0]] as usize;
     let mut arr = ndarray::Array2::<Number>::zeros((1, n));
     for i in 1..=n {
         arr[[0, i - 1]] = i as Number;
@@ -109,11 +109,11 @@ impl Stack {
             "-" => self.execute_dyadic(word, subtract),
             "*" => self.execute_dyadic(word, multiply),
             "/" => self.execute_dyadic(word, divide),
-            "neg" => self.execute_monadic(word, negate),
-            "rev" => self.execute_monadic(word, reverse),
-            "len" => self.execute_monadic(word, length),
+            "negate" | "neg" => self.execute_monadic(word, negate),
+            "reverse" | "rev" => self.execute_monadic(word, reverse),
+            "length" | "len" => self.execute_monadic(word, length),
             "sum" => self.execute_monadic(word, sum),
-            "product" => self.execute_monadic(word, product),
+            "product" | "prod" => self.execute_monadic(word, product),
             "iota" => self.execute_monadic(word, iota),
             "right" => self.right(),
             "left" => self.left(),
