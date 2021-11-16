@@ -1,17 +1,39 @@
 use colored::*;
 use ndarray::arr2;
 use ndarray::Array2;
+use ndarray::{array, s};
 use std::io::{stdin, stdout, Write};
 
 type Number = f64;
 type Value = Array2<Number>;
-// type MonadicFn = fn(Value) -> Value;
+type MonadicFn = fn(Value) -> Value;
 type DyadicFn = fn(Value, Value) -> Value;
 type StackFn = fn(Vec<Value>) -> Value;
 
 enum Expr<'a> {
     Num(Number),
     Word(&'a str),
+}
+
+// Monadic Fns ------------------------
+fn negate(v: Value) -> Value {
+    v * -1.0
+}
+
+fn reverse(v: Value) -> Value {
+    v.slice_move(s![0.., 0..;-1])
+}
+
+fn length(v: Value) -> Value {
+    array![[v.len() as Number]]
+}
+
+fn sum(v: Value) -> Value {
+    array![[v.sum()]]
+}
+
+fn product(v: Value) -> Value {
+    array![[v.product()]]
 }
 
 // Dyadic Fns -------------------------
@@ -77,6 +99,11 @@ impl Stack {
             "-" => self.execute_dyadic(word, subtract),
             "*" => self.execute_dyadic(word, multiply),
             "/" => self.execute_dyadic(word, divide),
+            "neg" => self.execute_monadic(word, negate),
+            "rev" => self.execute_monadic(word, reverse),
+            "len" => self.execute_monadic(word, length),
+            "sum" => self.execute_monadic(word, sum),
+            "product" => self.execute_monadic(word, product),
             "right" => self.right(),
             "left" => self.left(),
             "commute" => self.commute(),
@@ -87,16 +114,16 @@ impl Stack {
             }
         }
     }
-    // fn execute_monadic(self, word: &str, f: MonadicFn) -> Self {
-    //     if self.rep.len() < 1 {
-    //         eprintln!("{}", format!("`{}` requires one argument.", word).red());
-    //         eprintln!("{}", format!("The stack: {:?}", self.rep).red());
+    fn execute_monadic(self, word: &str, f: MonadicFn) -> Self {
+        if self.rep.len() < 1 {
+            eprintln!("{}", format!("`{}` requires one argument.", word).red());
+            eprintln!("{}", format!("The stack: {:?}", self.rep).red());
 
-    //         return self;
-    //     }
-    //     let (v1, stack1) = self.pop();
-    //     stack1.push(f(v1.unwrap()))
-    // }
+            return self;
+        }
+        let (v1, stack1) = self.pop();
+        stack1.push(f(v1.unwrap()))
+    }
     fn execute_dyadic(self, word: &str, f: DyadicFn) -> Self {
         if self.rep.len() < 2 {
             eprintln!("{}", format!("`{}` requires two arguments.", word).red());
