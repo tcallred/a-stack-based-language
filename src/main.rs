@@ -36,6 +36,16 @@ fn product(v: Value) -> Value {
     array![[v.product()]]
 }
 
+fn iota(v: Value) -> Value {
+    let n = v[[0,0]] as usize;
+    let mut arr = ndarray::Array2::<Number>::zeros((1, n));
+    for i in 1..=n {
+        arr[[0, i - 1]] = i as Number;
+    }
+
+    arr
+}
+
 // Dyadic Fns -------------------------
 fn add(v1: Value, v2: Value) -> Value {
     v1 + v2
@@ -104,6 +114,7 @@ impl Stack {
             "len" => self.execute_monadic(word, length),
             "sum" => self.execute_monadic(word, sum),
             "product" => self.execute_monadic(word, product),
+            "iota" => self.execute_monadic(word, iota),
             "right" => self.right(),
             "left" => self.left(),
             "commute" => self.commute(),
