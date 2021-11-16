@@ -185,7 +185,11 @@ fn execute_ln(ln: &str) {
     let new_stack = exprs.fold(stack, |s, e| s.execute(e));
 
     for val in new_stack.rep.iter().rev() {
-        println!("{}", format!("{}", val).purple());
+        if val.len() == 1 {
+            println!("{}", format!("{}", val[[0, 0]]).purple())
+        } else {
+            println!("{}", format!("{}", val).purple());
+        }
     }
 }
 
