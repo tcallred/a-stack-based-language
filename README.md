@@ -49,3 +49,10 @@ One goal in this project is to demonstrate writing Rust in a pure functional sty
 - `right` Copy first element on the stack
 - `left` Copy second element on the stack
 - `commute` Swap the first and second element on the stack
+
+## Roadmap
+- [ ] Booleans
+- [ ] 2 Dimensions
+- [ ] Higher order operators
+- [ ] Custom words (functions)
+- [ ] File interpreter

@@ -115,7 +115,7 @@ impl Stack {
             "sum" => self.execute_monadic(word, sum),
             "product" | "prod" => self.execute_monadic(word, product),
             "iota" => self.execute_monadic(word, iota),
-            "right" => self.right(),
+            "right" | "dup" => self.right(),
             "left" => self.left(),
             "commute" => self.commute(),
             "|" => self.execute_all(concat_array),
