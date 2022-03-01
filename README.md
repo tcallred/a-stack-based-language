@@ -34,7 +34,7 @@ One goal in this project is to demonstrate writing Rust in a pure functional sty
 30
 ```
 
-## Available words
+## Available builtin words
 - `+` Addition
 - `-` Subtraction
 - `*` Multiplication
@@ -51,6 +51,7 @@ One goal in this project is to demonstrate writing Rust in a pure functional sty
 - `commute` Swap the first and second element on the stack
 
 ## Roadmap
+- [ ] Refactor
 - [ ] Booleans
 - [ ] 2 Dimensions
 - [ ] Higher order operators
