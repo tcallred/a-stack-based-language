@@ -9,3 +9,5 @@ edition = "2018"
 [dependencies]
 colored = "2"
 ndarray = "0.15.3"
+im-rc = "15.1.0"
+tailcall = "0.1.6"

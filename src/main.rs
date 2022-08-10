@@ -1,6 +1,7 @@
 use a_stack_based_language::interpreter::*;
 use colored::*;
 use std::io::{stdin, stdout, Write};
+use a_stack_based_language::tokenizer::*;
 
 fn run_prompt() {
     let mut line = String::new();
@@ -15,7 +16,9 @@ fn run_prompt() {
         if trimmed_line.len() == 0 {
             break;
         } else {
-            execute_ln(trimmed_line);
+            for token in tokenize(String::from(trimmed_line)).iter() {
+                println!("{:?}", token);
+            }
         }
 
         line.clear();
