@@ -65,7 +65,7 @@ fn concat_array(values: Vec<Value>) -> Value {
     for (i, v) in values.iter().enumerate() {
         new_arr[[0, i]] = v[[0, 0]];
     }
-    return new_arr;
+    new_arr
 }
 
 #[derive(Debug)]
@@ -79,18 +79,22 @@ impl Stack {
             rep: Vec::with_capacity(10),
         }
     }
+
     fn push(mut self, val: Value) -> Self {
         self.rep.push(val);
         self
     }
+
     fn peek(&self, n: usize) -> Option<&Value> {
         self.rep.iter().rev().nth(n)
     }
+
     fn pop(mut self) -> (Option<Value>, Self) {
         let val = self.rep.pop();
 
         (val, self)
     }
+
     fn execute(self, expr: Expr) -> Self {
         use Expr::*;
 
@@ -99,6 +103,7 @@ impl Stack {
             Word(w) => self.execute_word(w),
         }
     }
+
     fn execute_word(self, word: &str) -> Self {
         match word {
             "+" => self.execute_dyadic(word, add),
@@ -121,8 +126,9 @@ impl Stack {
             }
         }
     }
+
     fn execute_monadic(self, word: &str, f: MonadicFn) -> Self {
-        if self.rep.len() < 1 {
+        if self.rep.is_empty() {
             eprintln!("{}", format!("`{}` requires one argument.", word).red());
             eprintln!("{}", format!("The stack: {:?}", self.rep).red());
 
@@ -131,6 +137,7 @@ impl Stack {
         let (v1, stack1) = self.pop();
         stack1.push(f(v1.unwrap()))
     }
+
     fn execute_dyadic(self, word: &str, f: DyadicFn) -> Self {
         if self.rep.len() < 2 {
             eprintln!("{}", format!("`{}` requires two arguments.", word).red());
@@ -142,16 +149,18 @@ impl Stack {
         let (v2, stack2) = stack1.pop();
         stack2.push(f(v1.unwrap(), v2.unwrap()))
     }
+
     fn execute_all(self, f: StackFn) -> Self {
         let mut stack = self;
         let mut vals = vec![];
-        while stack.rep.len() > 0 && stack.peek(0).unwrap().len() == 1 {
+        while !stack.rep.is_empty() && stack.peek(0).unwrap().len() == 1 {
             let (v, new_stack) = stack.pop();
             vals.push(v.unwrap());
             stack = new_stack;
         }
         stack.push(f(vals.into_iter().rev().collect()))
     }
+
     fn commute(self) -> Self {
         if self.rep.len() < 2 {
             return self;
@@ -160,13 +169,15 @@ impl Stack {
         let (v2, stack2) = stack1.pop();
         stack2.push(v1.unwrap()).push(v2.unwrap())
     }
+
     fn right(self) -> Self {
-        if self.rep.len() < 1 {
+        if self.rep.is_empty() {
             return self;
         }
         let val = self.peek(0).unwrap().clone();
         self.push(val)
     }
+
     fn left(self) -> Self {
         if self.rep.len() < 2 {
             return self;
