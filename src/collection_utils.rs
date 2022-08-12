@@ -1,5 +1,6 @@
 use im_rc::vector::*;
 use std::str::Chars;
+use std::rc::Rc;
 
 pub trait Collection<T: Clone> {
     fn conj(self, value: T) -> Self;
@@ -22,7 +23,7 @@ impl Collection<char> for String {
 #[derive(Clone)]
 pub enum List<T: Clone> {
     Empty,
-    Cons(T, Box<List<T>>),
+    Cons(T, Rc<List<T>>),
 }
 
 impl<T: Clone> List<T> {
@@ -31,7 +32,7 @@ impl<T: Clone> List<T> {
     }
 
     pub fn cons(self, value: T) -> Self {
-        List::Cons(value, Box::new(self))
+        List::Cons(value, Rc::new(self))
     }
 
     pub fn head(self) -> Option<T> {
@@ -44,7 +45,7 @@ impl<T: Clone> List<T> {
     pub fn tail(self) -> Self {
         match self {
             List::Empty => List::Empty,
-            List::Cons(_, rest) => *rest,
+            List::Cons(_, rest) => (*rest).clone(),
         }
     }
 }
@@ -55,11 +56,7 @@ pub trait Sequence: Iterator + DoubleEndedIterator {
         Self::Item: Clone,
         Self: Sized,
     {
-        let mut lst = List::Empty;
-        for item in self.rev() {
-            lst = lst.cons(item);
-        }
-        lst
+        self.rev().fold(List::Empty, |lst, value| lst.cons(value))
     }
 }
 
