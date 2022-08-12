@@ -1,6 +1,6 @@
 use im_rc::vector::*;
-use std::str::Chars;
 use std::rc::Rc;
+use std::str::Chars;
 
 pub trait Collection<T: Clone> {
     fn conj(self, value: T) -> Self;
